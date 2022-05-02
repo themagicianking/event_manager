@@ -26,5 +26,14 @@
       <td><%= "#{legislators}" %></td>
     <% end %>
   </table>
+
+  <p>
+  <% if phone.nil? %>
+    Please sign up for text alerts on our website :)
+  <% else %>
+    Your phone number for text alerts:
+    <%= "#{phone}" %>
+  <% end %>
+  </p>
 </body>
 </html>
