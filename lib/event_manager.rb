@@ -43,6 +43,14 @@ def save_thank_you_letter(id, form_letter)
   end
 end
 
+def save_time_data(peak_time, marketing_letter)
+  filename = "output/marketing.html"
+
+  File.open(filename, 'w') do |file|
+    file.puts marketing_letter
+  end
+end
+
 puts 'Event Manager Initialized.'
 
 contents = CSV.open(
@@ -53,6 +61,7 @@ contents = CSV.open(
 
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
+marketing_letter = File.read('marketing_data.erb')
 
 contents.each do |row|
   id = row[0]
