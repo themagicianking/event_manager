@@ -1,6 +1,7 @@
 require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
+require 'time'
 
 def clean_phone_number(phone_number)
   if phone_number.length < 10
@@ -16,6 +17,16 @@ end
 
 def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, "0")[0..4]
+end
+
+def clean_hours(time_registered)
+  begin
+    clean_time_registered = Time.parse(time_registered)
+    puts clean_time_registered
+    clean_time_registered.strftime("%k")
+  rescue
+    puts "invalid time"
+  end
 end
 
 def legislators_by_zipcode(zip)
@@ -43,7 +54,11 @@ def save_thank_you_letter(id, form_letter)
   end
 end
 
-def save_time_data(peak_time, marketing_letter)
+def find_peak_hours(hours_registered)
+  peak_hours = hours_registered.mode
+end
+
+def save_time_data(peak_hours, marketing_letter)
   filename = "output/marketing.html"
 
   File.open(filename, 'w') do |file|
@@ -62,6 +77,7 @@ contents = CSV.open(
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 marketing_letter = File.read('marketing_data.erb')
+hours_registered = []
 
 contents.each do |row|
   id = row[0]
@@ -69,8 +85,13 @@ contents.each do |row|
   zipcode = clean_zipcode(row[:zipcode])
   phone = clean_phone_number(row[:homephone])
   legislators = legislators_by_zipcode(zipcode)
+  hour = clean_hours(row[:regdate])
+  hours_registered.push(hour)
 
   form_letter = erb_template.result(binding)
 
   save_thank_you_letter(id,form_letter)
 end
+
+find_peak_hours(hours_registered)
+save_time_data(peak_hours, marketing_letter)
